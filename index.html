@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>挿管ゲーム</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- 背景レイヤー: 全画面表示の画像 -->
+        <div id="background-layer">
+            <div id="bg-image"></div>
+        </div>
+
+        <!-- キャラクタレイヤー: 左下に立ち絵を配置 (1名のみ表示) -->
+        <div id="character-layer">
+            <div id="active-character" class="standing-character hidden"></div>
+        </div>
+
+        <!-- ミニゲームレイヤー: 各種ウィンドウ -->
+        <div id="minigame-container" class="hidden">
+            <!-- CPAPミニゲーム -->
+            <div class="window-box hidden" id="cpap-container">
+                <div class="window-title">CPAP</div>
+                <div id="cpap-bg">
+                    <div id="cpap-mask"></div>
+                </div>
+                <div id="cpap-controls">
+                    <!-- 圧力ゲージ -->
+                    <div id="cpap-gauge">
+                        <div id="cpap-gauge-target-zone"></div>
+                        <div id="cpap-gauge-fill"></div>
+                    </div>
+                    <!-- 呼吸バッグ -->
+                    <div id="cpap-bag"></div>
+                </div>
+            </div>
+
+            <!-- SpO2ウィンドウ -->
+            <div id="spo2-window" class="hidden">
+                <div class="spo2-title">SpO2</div>
+                <div class="spo2-value"><span id="spo2-number">90</span> %</div>
+            </div>
+
+            <!-- 頭部固定ミニゲーム -->
+            <div class="window-box" id="head-fix-container">
+                <div class="window-title">頭部固定</div>
+                <div id="head-fix-bg"></div>
+                <!-- ドロップターゲット -->
+                <div id="towel-target" class="drop-target hidden"></div>
+                <div id="hands-target" class="drop-target hidden"></div>
+                <!-- ドラッグアイテム -->
+                <div id="head-towel" class="draggable-item hidden"></div>
+                <div id="nurse-hands" class="draggable-item hidden"></div>
+            </div>
+
+            <!-- 喉頭鏡ミニゲーム -->
+            <div class="window-box hidden" id="window1">
+                <div class="window-title">操作エリア</div>
+                <div id="laryngoscope-area">
+                    <div id="laryngoscope-tool" class="draggable-tool"></div>
+                </div>
+            </div>
+            <div class="window-box hidden" id="window2">
+                <div class="window-title">声帯ビュー</div>
+                <div id="scope-lens">
+                    <div id="scope-content" class="blurred"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UIレイヤー: 台詞、カットイン、選択肢 -->
+        <div id="ui-layer">
+            <!-- 選択肢UI -->
+            <div id="tool-selection" class="hidden">
+                <div class="selection-message">渡す器具を選んでください</div>
+                <div class="options-container">
+                    <button class="tool-btn" data-tool="suction">吸引チューブ</button>
+                    <button class="tool-btn" data-tool="tracheal">気管チューブ</button>
+                    <button class="tool-btn" data-tool="bag">流量膨張式バッグ</button>
+                </div>
+            </div>
+
+            <!-- カットイン表示領域 -->
+            <div id="cutin-container" class="hidden">
+                <div class="speed-lines"></div>
+                <div id="cutin-image"></div>
+            </div>
+
+            <!-- 操作ヒント用UI (テストプレイ用) -->
+            <div id="hint-panel" class="hidden">
+                <span id="hint-text"></span>
+            </div>
+
+            <!-- ノベルゲーム風 台詞領域 (画面下部固定) -->
+            <div id="dialog-box">
+                <p id="dialog-text"></p>
+                <div id="dialog-next-indicator" class="hidden">▼</div>
+            </div>
+
+            <!-- クリア画面 -->
+            <div id="clear-screen" class="hidden">
+                <h1>挿管完了！</h1>
+                <p>よくできました</p>
+                <button id="restart-btn">もう一度</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- スクリプト -->
+    <script src="js/ScaleManager.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
