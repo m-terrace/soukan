@@ -1,0 +1,180 @@
+/* =====================================================
+   kotei（体位固定）固有スタイル
+   共通スタイルは ../shared/css/common.css を参照
+   ===================================================== */
+
+/* 背景画像 */
+#bg-image {
+    background-image: url('../assets/img/back.jpg');
+}
+
+/* ミニゲームエリア配置（立ち絵の右側に寄せる） */
+#minigame-container {
+    position: absolute;
+    top: 10px;                   /* 600px→420px 縮小に合わせて上に詰める */
+    left: calc(50% + 100px);
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    z-index: 15;
+}
+
+/* --- 体位固定ミニゲーム --- */
+#head-fix-container {
+    width: 560px;   /* 600 × 0.933 */
+    height: 420px;  /* top:10 + 420 = 430px ＜ dialog開始(470px) */
+    margin: 0 auto;
+}
+
+#head-fix-bg {
+    position: absolute;
+    width: 100%;
+    height: calc(100% - 30px);
+    top: 30px;
+    left: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: background-image 0.3s ease;
+}
+
+/* =====================================================
+   インタラクティブエリア（タオル / 顔）
+   ===================================================== */
+.interact-area {
+    position: absolute;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 10;
+    pointer-events: auto;
+    /* ハイライト用の薄い下地 */
+    background: rgba(255, 215, 0, 0.03);
+}
+
+/* タオルエリア（w×0.933 / h×0.684 でスケール） */
+#towel-area {
+    left: 150px;
+    top:  178px;
+    width:  232px;
+    height:  76px;
+}
+
+/* 顔エリア（同スケール） */
+#face-area {
+    left:  75px;
+    top:   68px;
+    width: 186px;
+    height: 150px;
+}
+
+/* =====================================================
+   ハイライトアニメーション
+   ===================================================== */
+.golden-highlight {
+    box-shadow: 0 0 15px 5px gold;
+    animation: goldPulse 1.5s infinite alternate;
+    border-radius: 8px;
+}
+
+@keyframes goldPulse {
+    0%   { box-shadow: 0 0 15px  5px gold; }
+    100% { box-shadow: 0 0 25px 10px gold; }
+}
+
+.yellow-highlight {
+    box-shadow: 0 0 15px 5px #ffe000;
+    animation: yellowPulse 1.5s infinite alternate;
+    border-radius: 8px;
+}
+
+@keyframes yellowPulse {
+    0%   { box-shadow: 0 0 15px  5px #ffe000; }
+    100% { box-shadow: 0 0 25px 10px #ffff00; }
+}
+
+/* =====================================================
+   矢印ヒント
+   ===================================================== */
+
+/* ▼ 下向き矢印 (フェーズ0) */
+#arrow-down {
+    position: absolute;
+    left: 248px;   /* 265 × 0.933 */
+    top:  260px;   /* 380 × 0.684 */
+    width: 0;
+    height: 0;
+    border-left:  18px solid transparent;
+    border-right: 18px solid transparent;
+    border-top:   32px solid gold;
+    animation: bounceDown 0.9s ease-in-out infinite alternate;
+    z-index: 15;
+    pointer-events: none;
+}
+
+@keyframes bounceDown {
+    0%   { transform: translateY(0);    }
+    100% { transform: translateY(14px); }
+}
+
+/* ▲ 上向き矢印 (フェーズ2) */
+#arrow-up {
+    position: absolute;
+    left: 248px;   /* 265 × 0.933 */
+    top:  148px;   /* 215 × 0.684 */
+    width: 0;
+    height: 0;
+    border-left:  18px solid transparent;
+    border-right: 18px solid transparent;
+    border-bottom: 32px solid gold;
+    animation: bounceUp 0.9s ease-in-out infinite alternate;
+    z-index: 15;
+    pointer-events: none;
+}
+
+@keyframes bounceUp {
+    0%   { transform: translateY(0);     }
+    100% { transform: translateY(-14px); }
+}
+
+/* 時計回り弧矢印 (フェーズ3) */
+#arrow-rotate {
+    position: absolute;
+    left: 70px;   /* 75 × 0.933 */
+    top:  58px;   /* 85 × 0.684 */
+    width: 110px;
+    height: 110px;
+    z-index: 15;
+    pointer-events: none;
+    animation: rotatePulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes rotatePulse {
+    0%   { opacity: 0.72; transform: scale(0.94); }
+    100% { opacity: 1.00; transform: scale(1.06); }
+}
+
+/* =====================================================
+   カットイン表現
+   ===================================================== */
+#cutin-container {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    transition: left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
+    z-index: 25;
+    pointer-events: none;
+}
+
+#cutin-container.active {
+    left: 0;
+}
+
+#cutin-image {
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom right;
+}

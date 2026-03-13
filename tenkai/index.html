@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>喉頭展開ゲーム</title>
+    <link rel="stylesheet" href="../shared/css/common.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- 背景レイヤー -->
+        <div id="background-layer">
+            <div id="bg-image"></div>
+        </div>
+
+        <!-- キャラクタレイヤー -->
+        <div id="character-layer">
+            <div id="active-character" class="standing-character char-itoshima"></div>
+        </div>
+
+        <!-- ミニゲームレイヤー: 喉頭鏡コンテナ -->
+        <div id="minigame-container" class="hidden">
+            <div class="windows-row">
+                <div class="window-box" id="window1">
+                    <div class="window-title">口腔外</div>
+                    <div id="laryngoscope-area">
+                        <img id="window1-bg" src="assets/img/oral cavity/face1.png" class="window1-bg" alt="">
+                    </div>
+                </div>
+                <div class="window-box" id="window2">
+                    <div class="window-title">喉頭鏡ビュー</div>
+                    <div id="scope-lens">
+                        <div id="scope-content"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- 方向操作ボタン -->
+            <div id="nav-controls">
+                <div class="nav-row">
+                    <button class="nav-btn" data-dir="up">↑<br><span>上</span></button>
+                </div>
+                <div class="nav-row">
+                    <button class="nav-btn" data-dir="left">←<br><span>左</span></button>
+                    <button class="nav-btn" id="depth-btn"><span>奥へ</span></button>
+                    <button class="nav-btn" data-dir="right">→<br><span>右</span></button>
+                </div>
+                <div class="nav-row">
+                    <button class="nav-btn" data-dir="down">↓<br><span>下</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 気管チューブ挿入ゲーム -->
+        <div id="tube-insertion-game" class="hidden">
+            <div id="tube-target-indicator"></div>
+            <img id="drag-tube" src="assets/img/tube_insert.svg"
+                 draggable="false" alt="気管チューブ">
+        </div>
+
+        <!-- テストプレイ用UI -->
+        <div id="hint-panel" class="hidden">
+            <span id="hint-text"></span>
+        </div>
+
+        <!-- UIレイヤー: 台詞、クリア画面 -->
+        <div id="ui-layer">
+            <!-- 選択肢UI -->
+            <div id="tool-selection" class="hidden">
+                <div class="selection-message">渡す器具を選んでください</div>
+                <div class="options-container">
+                    <button class="tool-btn" data-tool="suction">吸引チューブ</button>
+                    <button class="tool-btn" data-tool="tracheal">気管チューブ</button>
+                    <button class="tool-btn" data-tool="bag">流量膨張式バッグ</button>
+                </div>
+            </div>
+
+            <!-- カットイン表示領域 -->
+            <div id="cutin-container" class="hidden">
+                <div id="cutin-image"></div>
+            </div>
+
+            <!-- ノベルゲーム風 台詞領域 (画面下部固定) -->
+            <div id="dialog-box" class="hidden">
+                <div id="dialog-name"></div>
+                <p id="dialog-text"></p>
+                <div id="dialog-next-indicator" class="hidden">▼</div>
+            </div>
+
+            <!-- クリア画面 -->
+            <div id="clear-screen" class="hidden">
+                <h1>挿管完了！</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- スクリプト -->
+    <script src="../shared/js/ScaleManager.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

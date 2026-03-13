@@ -1,118 +1,184 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>挿管ゲーム</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>新生児挿管シミュレーション</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0a0a0f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+            overflow: hidden;
+        }
+
+        #title-screen {
+            position: relative;
+            width: 1280px;
+            height: 720px;
+            background: linear-gradient(160deg, #0d1b2a 0%, #1b2838 60%, #0a1020 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 48px;
+            overflow: hidden;
+        }
+
+        /* 背景グリッド装飾 */
+        #title-screen::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(80,160,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(80,160,255,0.04) 1px, transparent 1px);
+            background-size: 64px 64px;
+        }
+
+        .title-badge {
+            font-size: 13px;
+            letter-spacing: 4px;
+            color: rgba(100,180,255,0.7);
+            text-transform: uppercase;
+            border: 1px solid rgba(100,180,255,0.25);
+            padding: 6px 20px;
+            border-radius: 20px;
+        }
+
+        h1 {
+            font-size: 52px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 6px;
+            text-shadow: 0 0 40px rgba(80,160,255,0.4);
+            text-align: center;
+            line-height: 1.25;
+        }
+
+        h1 span {
+            display: block;
+            font-size: 22px;
+            font-weight: 400;
+            color: rgba(160,210,255,0.75);
+            letter-spacing: 8px;
+            margin-top: 10px;
+        }
+
+        .flow-bar {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .flow-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .flow-step .num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(80,160,255,0.2);
+            border: 1.5px solid rgba(80,160,255,0.5);
+            color: rgba(140,200,255,0.9);
+            font-size: 13px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flow-step .label {
+            font-size: 14px;
+            color: rgba(200,230,255,0.75);
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }
+
+        .flow-arrow {
+            width: 48px;
+            height: 2px;
+            background: linear-gradient(to right, rgba(80,160,255,0.4), rgba(80,160,255,0.2));
+            margin: 0 4px;
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        .flow-arrow::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: -4px;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 8px solid rgba(80,160,255,0.4);
+        }
+
+        #start-btn {
+            margin-top: 8px;
+            padding: 18px 72px;
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 6px;
+            color: #fff;
+            background: linear-gradient(135deg, #1565c0, #0d47a1);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 24px rgba(30,100,220,0.5), 0 0 0 1px rgba(80,160,255,0.2);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        #start-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 8px 36px rgba(30,100,220,0.7), 0 0 0 1px rgba(80,160,255,0.4);
+        }
+
+        #start-btn:active {
+            transform: translateY(0) scale(0.99);
+        }
+    </style>
 </head>
-
 <body>
-    <div id="game-container">
-        <!-- 背景レイヤー: 全画面表示の画像 -->
-        <div id="background-layer">
-            <div id="bg-image"></div>
-        </div>
+    <div id="title-screen">
+        <div class="title-badge">Neonatal Intubation Simulation</div>
 
-        <!-- キャラクタレイヤー: 左下に立ち絵を配置 (1名のみ表示) -->
-        <div id="character-layer">
-            <div id="active-character" class="standing-character hidden"></div>
-        </div>
+        <h1>
+            新生児挿管
+            <span>シミュレーション</span>
+        </h1>
 
-        <!-- ミニゲームレイヤー: 各種ウィンドウ -->
-        <div id="minigame-container" class="hidden">
-            <!-- CPAPミニゲーム -->
-            <div class="window-box hidden" id="cpap-container">
-                <div class="window-title">CPAP</div>
-                <div id="cpap-bg">
-                    <div id="cpap-mask"></div>
-                </div>
-                <div id="cpap-controls">
-                    <!-- 圧力ゲージ -->
-                    <div id="cpap-gauge">
-                        <div id="cpap-gauge-target-zone"></div>
-                        <div id="cpap-gauge-fill"></div>
-                    </div>
-                    <!-- 呼吸バッグ -->
-                    <div id="cpap-bag"></div>
-                </div>
+        <div class="flow-bar">
+            <div class="flow-step">
+                <div class="num">1</div>
+                <div class="label">CPAP</div>
             </div>
-
-            <!-- SpO2ウィンドウ -->
-            <div id="spo2-window" class="hidden">
-                <div class="spo2-title">SpO2</div>
-                <div class="spo2-value"><span id="spo2-number">90</span> %</div>
+            <div class="flow-arrow"></div>
+            <div class="flow-step">
+                <div class="num">2</div>
+                <div class="label">体位固定</div>
             </div>
-
-            <!-- 頭部固定ミニゲーム -->
-            <div class="window-box" id="head-fix-container">
-                <div class="window-title">頭部固定</div>
-                <div id="head-fix-bg"></div>
-                <!-- ドロップターゲット -->
-                <div id="towel-target" class="drop-target hidden"></div>
-                <div id="hands-target" class="drop-target hidden"></div>
-                <!-- ドラッグアイテム -->
-                <div id="head-towel" class="draggable-item hidden"></div>
-                <div id="nurse-hands" class="draggable-item hidden"></div>
-            </div>
-
-            <!-- 喉頭鏡ミニゲーム -->
-            <div class="window-box hidden" id="window1">
-                <div class="window-title">操作エリア</div>
-                <div id="laryngoscope-area">
-                    <div id="laryngoscope-tool" class="draggable-tool"></div>
-                </div>
-            </div>
-            <div class="window-box hidden" id="window2">
-                <div class="window-title">声帯ビュー</div>
-                <div id="scope-lens">
-                    <div id="scope-content" class="blurred"></div>
-                </div>
+            <div class="flow-arrow"></div>
+            <div class="flow-step">
+                <div class="num">3</div>
+                <div class="label">喉頭展開・挿管</div>
             </div>
         </div>
 
-        <!-- UIレイヤー: 台詞、カットイン、選択肢 -->
-        <div id="ui-layer">
-            <!-- 選択肢UI -->
-            <div id="tool-selection" class="hidden">
-                <div class="selection-message">渡す器具を選んでください</div>
-                <div class="options-container">
-                    <button class="tool-btn" data-tool="suction">吸引チューブ</button>
-                    <button class="tool-btn" data-tool="tracheal">気管チューブ</button>
-                    <button class="tool-btn" data-tool="bag">流量膨張式バッグ</button>
-                </div>
-            </div>
-
-            <!-- カットイン表示領域 -->
-            <div id="cutin-container" class="hidden">
-                <div class="speed-lines"></div>
-                <div id="cutin-image"></div>
-            </div>
-
-            <!-- 操作ヒント用UI (テストプレイ用) -->
-            <div id="hint-panel" class="hidden">
-                <span id="hint-text"></span>
-            </div>
-
-            <!-- ノベルゲーム風 台詞領域 (画面下部固定) -->
-            <div id="dialog-box">
-                <p id="dialog-text"></p>
-                <div id="dialog-next-indicator" class="hidden">▼</div>
-            </div>
-
-            <!-- クリア画面 -->
-            <div id="clear-screen" class="hidden">
-                <h1>挿管完了！</h1>
-                <p>よくできました</p>
-                <button id="restart-btn">もう一度</button>
-            </div>
-        </div>
+        <button id="start-btn" onclick="window.location.href='cpap/index.html'">
+            スタート
+        </button>
     </div>
-
-    <!-- スクリプト -->
-    <script src="js/ScaleManager.js"></script>
-    <script src="js/main.js"></script>
 </body>
-
 </html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>体位固定ゲーム</title>
+    <link rel="stylesheet" href="../shared/css/common.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- 背景レイヤー -->
+        <div id="background-layer">
+            <div id="bg-image"></div>
+        </div>
+
+        <!-- キャラクタレイヤー -->
+        <div id="character-layer">
+            <div id="active-character" class="standing-character char-hatta"></div>
+        </div>
+
+        <!-- ミニゲームレイヤー: 体位固定コンテナ -->
+        <div id="minigame-container">
+            <div class="window-box" id="head-fix-container">
+                <div class="window-title">体位固定</div>
+                <div id="head-fix-bg"></div>
+
+                <!-- インタラクティブエリア（ヒットゾーン） -->
+                <div id="towel-area" class="interact-area hidden"></div>
+                <div id="face-area"  class="interact-area hidden"></div>
+
+                <!-- ▼ 下向き矢印（フェーズ0: タオルを下にドラッグ） -->
+                <div id="arrow-down" class="hidden"></div>
+
+                <!-- ▲ 上向き矢印（フェーズ2: タオルを頭の下へ） -->
+                <div id="arrow-up" class="hidden"></div>
+
+                <!-- 時計回り弧矢印（フェーズ3: 顔を傾ける） -->
+                <svg id="arrow-rotate" class="hidden"
+                     viewBox="0 0 110 110"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <!-- 約90°時計回りの弧 (12時 → 3時方向) -->
+                    <path d="M 55,10 A 45,45 0 0,1 100,55"
+                          stroke="gold" fill="none"
+                          stroke-width="6" stroke-linecap="round"/>
+                    <!-- 矢印の先端 -->
+                    <polygon points="100,55 114,46 108,68" fill="gold"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- カットイン表示領域 -->
+        <div id="cutin-container" class="hidden">
+            <div id="cutin-image"></div>
+        </div>
+
+        <!-- UIレイヤー: 台詞、クリア画面 -->
+        <div id="ui-layer">
+            <!-- ノベルゲーム風 台詞領域 (画面下部固定) -->
+            <div id="dialog-box">
+                <div id="dialog-name"></div>
+                <p id="dialog-text"></p>
+            </div>
+
+            <!-- クリア画面 -->
+            <div id="clear-screen" class="hidden">
+                <h1>体位固定完了！</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- スクリプト -->
+    <script src="../shared/js/ScaleManager.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

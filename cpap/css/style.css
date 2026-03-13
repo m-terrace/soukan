@@ -1,0 +1,164 @@
+/* =====================================================
+   CPAP固有スタイル
+   共通スタイルは ../shared/css/common.css を参照
+   ===================================================== */
+
+/* 背景画像 */
+#bg-image {
+    background-image: url('../assets/img/back.jpg');
+}
+
+/* ミニゲームエリア配置（立ち絵の右側に寄せる） */
+#minigame-container {
+    position: absolute;
+    top: 50px;
+    left: calc(50% + 100px);
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    z-index: 15;
+}
+
+/* CPAP Specific Styles */
+#cpap-container {
+    width: 600px;
+    height: 600px;
+    margin: 0 auto;
+}
+
+#cpap-bg {
+    position: absolute;
+    width: 100%;
+    height: calc(100% - 30px);
+    top: 30px;
+    left: 0;
+    background-image: url('../assets/img/cpap.jpeg');
+    background-size: cover;
+    background-position: center;
+}
+
+#cpap-bag-overlay {
+    position: absolute;
+    left: 287px;
+    top: 68px;
+    width: 463px;
+    height: auto;
+    transform-origin: center center;
+    transition: transform 0.1s ease;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+#cpap-gauge {
+    position: absolute;
+    right: 20px;
+    top: 80px;
+    width: 40px;
+    height: 500px;
+    background-color: #222;
+    border: 2px solid #555;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 200;
+    pointer-events: none;
+}
+
+#cpap-gauge-target-zone {
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    bottom: 30%;
+    background-color: rgba(0, 255, 0, 0.2);
+    border-top: 1px dashed rgba(255, 255, 255, 0.5);
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.5);
+    z-index: 1;
+}
+
+#cpap-gauge-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background-color: yellow;
+    transition: height 0.1s linear, background-color 0.2s;
+    z-index: 2;
+}
+
+/* Monitor Window */
+#monitor-window {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 360px;
+    height: 240px;
+    background: #000d00;
+    border: 2px solid #1a3a1a;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 255, 0, 0.1);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#monitor-header {
+    background: #001500;
+    color: #0b0;
+    text-align: center;
+    font-family: monospace;
+    font-size: 11px;
+    padding: 4px 0;
+    letter-spacing: 3px;
+    border-bottom: 1px solid #0a0;
+    flex-shrink: 0;
+}
+
+#monitor-values {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    padding: 4px 8px;
+    min-height: 0;
+}
+
+.monitor-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.monitor-value {
+    font-family: 'VT323', monospace;
+    font-size: 72px;
+    color: #00ff00;
+    text-shadow: 0 0 8px #00ff00, 0 0 20px #00aa00;
+    line-height: 1;
+    letter-spacing: 2px;
+}
+
+.monitor-label {
+    font-family: monospace;
+    font-size: 11px;
+    color: #0a0;
+    letter-spacing: 1px;
+}
+
+.monitor-divider {
+    width: 1px;
+    height: 75%;
+    background: linear-gradient(to bottom, transparent, #0a0, transparent);
+    flex-shrink: 0;
+}
+
+#ecg-canvas {
+    display: block;
+    border-top: 1px solid #0a0;
+    flex-shrink: 0;
+}

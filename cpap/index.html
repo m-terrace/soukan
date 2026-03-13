@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPAPゲーム</title>
+    <link rel="stylesheet" href="../shared/css/common.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <!-- 背景レイヤー: 全画面表示の画像 -->
+        <div id="background-layer">
+            <div id="bg-image"></div>
+        </div>
+
+        <!-- キャラクタレイヤー: 左下に立ち絵を配置 -->
+        <div id="character-layer">
+            <div id="active-character" class="standing-character char-itoshima"></div>
+        </div>
+
+        <!-- ミニゲームレイヤー: CPAPコンテナ -->
+        <div id="minigame-container">
+            <div class="window-box" id="cpap-container">
+                <div class="window-title">CPAP</div>
+                <div id="cpap-bg">
+                    <img id="cpap-bag-overlay" src="assets/img/cpap_bag.png" alt="bag">
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 圧力ゲージ（ウィンドウ外） -->
+        <div id="cpap-gauge">
+            <div id="cpap-gauge-target-zone"></div>
+            <div id="cpap-gauge-fill"></div>
+        </div>
+
+        <!-- Monitorウィンドウ -->
+        <div id="monitor-window">
+            <div id="monitor-header">PULSE OXIMETER</div>
+            <div id="monitor-values">
+                <div class="monitor-panel">
+                    <div class="monitor-value" id="spo2-number">90</div>
+                    <div class="monitor-label">%SpO2</div>
+                </div>
+                <div class="monitor-divider"></div>
+                <div class="monitor-panel">
+                    <div class="monitor-value" id="pr-number">150</div>
+                    <div class="monitor-label">PR (bpm)</div>
+                </div>
+            </div>
+            <canvas id="ecg-canvas" width="360" height="70"></canvas>
+        </div>
+
+        <!-- UIレイヤー: 台詞、クリア画面 -->
+        <div id="ui-layer">
+            <!-- ノベルゲーム風 台詞領域 (画面下部固定) -->
+            <div id="dialog-box">
+                <div id="dialog-name">糸島</div>
+                <p id="dialog-text">まずCPAPで呼吸を安定させよう</p>
+            </div>
+
+            <!-- クリア画面 -->
+            <div id="clear-screen" class="hidden">
+                <h1>CPAP完了！</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- スクリプト -->
+    <script src="../shared/js/ScaleManager.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
