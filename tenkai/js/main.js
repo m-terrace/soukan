@@ -400,9 +400,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 気管チューブ挿入ゲーム
     // =====================================================
 
-    // チューブ画像の定数（SVGサイズに合わせる）
-    const TUBE_W = 60;
-    const TUBE_H = 220;
+    // チューブ画像の定数（CSSサイズに合わせる）
+    const TUBE_W = 343;
+    const TUBE_H = 440;
 
     /** ゲーム開始: チューブを表示して声帯ターゲットを配置 */
     function startTubeGame() {

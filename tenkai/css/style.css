@@ -332,8 +332,8 @@
 /* ドラッグ可能なチューブ画像 */
 #drag-tube {
     position: absolute;
-    width: 60px;
-    height: 220px;
+    width: 343px;
+    height: 440px;
     cursor: grab;
     pointer-events: auto;
     user-select: none;
