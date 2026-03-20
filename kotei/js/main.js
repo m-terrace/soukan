@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         arrowDown:        document.getElementById('arrow-down'),
         arrowUp:          document.getElementById('arrow-up'),
         arrowRotate:      document.getElementById('arrow-rotate'),
+        tapIcon:          document.getElementById('tap-icon'),
     };
 
     let gameState = { phase: 0 };
@@ -125,7 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.arrowDown.classList.add('hidden');
         elements.arrowUp.classList.add('hidden');
         elements.arrowRotate.classList.add('hidden');
-        elements.towelArea.classList.remove('golden-highlight', 'yellow-highlight');
+        elements.tapIcon.classList.add('hidden');
+        elements.towelArea.classList.remove('golden-highlight', 'yellow-highlight', 'towel-phase1', 'towel-phase2');
     }
 
     // ===== ゲーム初期化 =====
@@ -144,14 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const onIntroClick = () => {
             dialogBox.removeEventListener('click', onIntroClick);
             elements.minigameContainer.classList.remove('hidden');
-            elements.headFixBg.style.backgroundImage = "url('assets/img/position1.JPG')";
+            elements.headFixBg.style.backgroundImage = "url('assets/img/position1.jpg')";
             showPhase0();
         };
         dialogBox.addEventListener('click', onIntroClick);
     }
 
     // =====================================================
-    // フェーズ 0: position1 → タオルを下にドラッグ
+    // フェーズ 0: position1.jpg → タオルを下にドラッグ
     // =====================================================
     function showPhase0() {
         setDialog("肩枕を外して頭枕に変えないと", "八田");
@@ -163,85 +165,116 @@ document.addEventListener('DOMContentLoaded', () => {
         // 下向き矢印を表示
         elements.arrowDown.classList.remove('hidden');
 
-        // ドラッグ下方向 50px 以上でフェーズ1へ（反応を甘く）
+        // ドラッグ下方向 25px 以上でフェーズ1へ
         setupDragGesture(elements.towelArea, (dx, dy) => {
-            if (dy > 50) advanceToPhase1();
+            if (dy > 25) advanceToPhase1();
         });
     }
 
     // =====================================================
-    // フェーズ 1: position2 → タオルをタップ
+    // フェーズ 1: position2.jpg → タオルをタップ
+    //   操作1の結果：手前にタオルが移動した状態
     // =====================================================
     function advanceToPhase1() {
         gameState.phase = 1;
-        elements.headFixBg.style.backgroundImage = "url('assets/img/position2.JPG')";
+        elements.headFixBg.style.backgroundImage = "url('assets/img/position2.jpg')";
         elements.arrowDown.classList.add('hidden');
         elements.towelArea.classList.remove('golden-highlight');
-        elements.towelArea.classList.add('yellow-highlight');
-        setDialog("タオルと低くして・・・", "八田");
+        elements.towelArea.classList.add('towel-phase1', 'yellow-highlight');
+        elements.tapIcon.classList.remove('hidden');
+        setDialog("タオルを平たく折りたたんで・・・", "八田");
 
         // タップでフェーズ2へ
         setupTapGesture(elements.towelArea, advanceToPhase2);
     }
 
     // =====================================================
-    // フェーズ 2: position3 → タオルを上にスワイプ
+    // フェーズ 2: position3.jpg → タオルを上方向にドラッグ
+    //   操作2の結果：タオルが平たく折りたたまれた状態
     // =====================================================
     function advanceToPhase2() {
         gameState.phase = 2;
-        elements.headFixBg.style.backgroundImage = "url('assets/img/position3.JPG')";
-        elements.towelArea.classList.remove('yellow-highlight');
-        elements.towelArea.classList.add('golden-highlight');
+        elements.tapIcon.classList.add('hidden');
+        elements.headFixBg.style.backgroundImage = "url('assets/img/position3.jpg')";
+        elements.towelArea.classList.remove('yellow-highlight', 'towel-phase1');
+        elements.towelArea.classList.add('towel-phase2', 'golden-highlight');
 
-        // 頭に向かう上向き矢印
+        // 右上45度矢印を表示
         elements.arrowUp.classList.remove('hidden');
         setDialog("頭の下にタオルを置こう", "八田");
 
-        // 上方向スワイプ 50px 以上でフェーズ3へ（反応を甘く）
+        // 上方向ドラッグ（上: dy < -20）でフェーズ3へ
         setupDragGesture(elements.towelArea, (dx, dy) => {
-            if (dy < -50) advanceToPhase3();
+            if (dy < -20) advanceToPhase3();
         });
     }
 
     // =====================================================
-    // フェーズ 3: position3 のまま → 時計回りジェスチャー
+    // フェーズ 3: position4.jpg → ダイアログクリックでフェーズ4へ
+    //   操作3の結果：平たいタオルが頭の下に敷いてある状態
     // =====================================================
     function advanceToPhase3() {
         gameState.phase = 3;
-        // タオルエリアを隠して顔エリアを表示
-        elements.towelArea.classList.add('hidden');
-        elements.towelArea.classList.remove('golden-highlight');
-        elements.arrowUp.classList.add('hidden');
+        hideAllHints();
+        elements.headFixBg.style.backgroundImage = "url('assets/img/position4.jpg')";
+        setDialog("上手にタオルが置けました！頭を固定します", "八田");
 
+        // ダイアログクリックでフェーズ4へ
+        const dialogBox = document.getElementById('dialog-box');
+        const onPhase3Click = () => {
+            dialogBox.removeEventListener('click', onPhase3Click);
+            advanceToPhase4();
+        };
+        dialogBox.addEventListener('click', onPhase3Click);
+    }
+
+    // =====================================================
+    // フェーズ 4: position5.jpg → 時計回りスワイプで完了
+    //   八田さんが頭を固定した状態 → 顎を上げる操作
+    // =====================================================
+    function advanceToPhase4() {
+        gameState.phase = 4;
+        elements.headFixBg.style.backgroundImage = "url('assets/img/position5.jpg')";
+
+        // 顔エリアと時計回り矢印を表示
         elements.faceArea.classList.remove('hidden');
         elements.arrowRotate.classList.remove('hidden');
-        setDialog("少し顔を挿管する人の方向に傾けて・・・", "八田");
+        setDialog("少し顎を挿管する人の方向に傾けて・・・", "八田");
 
-        // 右方向への弧ジェスチャー（dx > 40px）で完了（反応を甘く）
+        // 時計回り弧ジェスチャー（dx > 20px）で完了
         setupDragGesture(elements.faceArea, (dx, dy) => {
-            if (dx > 40) completeGame();
+            if (dx > 20) completeGame();
         });
     }
 
     // =====================================================
-    // 完了: position6 → 0.5 秒後にカットイン + ダイアログ同時表示
+    // 完了: position6.jpg → 画像読み込み完了後にカットイン + ダイアログ表示
+    //   操作4の結果：赤ちゃんの顎が少し上がった状態
     // =====================================================
     function completeGame() {
         hideAllHints();
-        elements.headFixBg.style.backgroundImage = "url('assets/img/position6.JPG')";
 
-        setTimeout(() => {
-            // カットインとセリフを同時に表示
-            showCutin("hatta2.png", 2000, () => {
-                elements.minigameContainer.classList.add('hidden');
-                elements.clearScreen.classList.remove('hidden');
+        const showResult = () => {
+            elements.headFixBg.style.backgroundImage = "url('assets/img/position6.jpg')";
+            // 画像が表示されてからカットイン＋セリフを出す
+            setTimeout(() => {
+                showCutin("hatta2.png", 2000, () => {
+                    elements.minigameContainer.classList.add('hidden');
+                    elements.clearScreen.classList.remove('hidden');
 
-                setTimeout(() => {
-                    window.location.href = '../tenkai/index.html';
-                }, 2000);
-            });
-            setDialog("OKです！", "八田");
-        }, 500);
+                    setTimeout(() => {
+                        window.location.href = '../tenkai/index.html';
+                    }, 2000);
+                });
+                setDialog("OKです！", "八田");
+            }, 700);
+        };
+
+        // 画像を先にプリロードして読み込み完了後に表示
+        const img = new Image();
+        img.onload  = showResult;
+        img.onerror = showResult; // 読み込み失敗でも進める
+        img.src = 'assets/img/position6.jpg';
     }
 
     // ゲーム開始

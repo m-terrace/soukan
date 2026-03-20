@@ -34,8 +34,17 @@
                 <!-- ▼ 下向き矢印（フェーズ0: タオルを下にドラッグ） -->
                 <div id="arrow-down" class="hidden"></div>
 
-                <!-- ▲ 上向き矢印（フェーズ2: タオルを頭の下へ） -->
-                <div id="arrow-up" class="hidden"></div>
+                <!-- ↗ 右上45度矢印（フェーズ2: タオルを頭の下へ） -->
+                <svg id="arrow-up" class="hidden"
+                     viewBox="0 0 56 56"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <line x1="10" y1="48" x2="38" y2="18"
+                          stroke="gold" stroke-width="6" stroke-linecap="round"/>
+                    <polygon points="44,12 44,26 30,12" fill="gold"/>
+                </svg>
+
+                <!-- タップアイコン（フェーズ1: タオルをタップ） -->
+                <div id="tap-icon" class="hidden"></div>
 
                 <!-- 時計回り弧矢印（フェーズ3: 顔を傾ける） -->
                 <svg id="arrow-rotate" class="hidden"

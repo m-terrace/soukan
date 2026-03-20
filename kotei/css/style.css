@@ -51,12 +51,28 @@
     background: rgba(255, 215, 0, 0.03);
 }
 
-/* タオルエリア（w×0.933 / h×0.684 でスケール） */
+/* タオルエリア（基本: フェーズ0用） */
 #towel-area {
-    left: 150px;
-    top:  178px;
-    width:  232px;
-    height:  76px;
+    left:   190px;
+    top:    258px;
+    width:  210px;
+    height: 142px;
+}
+
+/* フェーズ1: タオルエリア（position2.jpg の平たいタオル形状） */
+#towel-area.towel-phase1 {
+    left:   178px;
+    top:    203px;
+    width:  210px;
+    height: 176px;
+}
+
+/* フェーズ2: 横長タオルエリア（position3.jpg の横長タオル・下寄せ） */
+#towel-area.towel-phase2 {
+    left:   142px;
+    top:    284px;
+    width:  280px;
+    height: 81px;
 }
 
 /* 顔エリア（同スケール） */
@@ -96,11 +112,11 @@
    矢印ヒント
    ===================================================== */
 
-/* ▼ 下向き矢印 (フェーズ0) */
+/* ▼ 下向き矢印 (フェーズ0: タオルエリア直下) */
 #arrow-down {
     position: absolute;
-    left: 248px;   /* 265 × 0.933 */
-    top:  260px;   /* 380 × 0.684 */
+    left: 277px;   /* towel-area 中央: 190+210/2-18 ≈ 277 */
+    top:  405px;   /* towel-area 下端 258+142=400 + 5px gap */
     width: 0;
     height: 0;
     border-left:  18px solid transparent;
@@ -109,6 +125,7 @@
     animation: bounceDown 0.9s ease-in-out infinite alternate;
     z-index: 15;
     pointer-events: none;
+    overflow: visible;
 }
 
 @keyframes bounceDown {
@@ -116,31 +133,65 @@
     100% { transform: translateY(14px); }
 }
 
-/* ▲ 上向き矢印 (フェーズ2) */
+/* ↗ 右上45度矢印 (フェーズ2: タオルを頭の下へ) */
 #arrow-up {
     position: absolute;
-    left: 248px;   /* 265 × 0.933 */
-    top:  148px;   /* 215 × 0.684 */
-    width: 0;
-    height: 0;
-    border-left:  18px solid transparent;
-    border-right: 18px solid transparent;
-    border-bottom: 32px solid gold;
-    animation: bounceUp 0.9s ease-in-out infinite alternate;
+    left: 232px;
+    top:  218px;
+    width:  65px;
+    height: 65px;
     z-index: 15;
     pointer-events: none;
+    animation: bounceUpRight 0.9s ease-in-out infinite alternate;
 }
 
-@keyframes bounceUp {
-    0%   { transform: translateY(0);     }
-    100% { transform: translateY(-14px); }
+@keyframes bounceUpRight {
+    0%   { transform: translate(0,    0);    }
+    100% { transform: translate(8px, -8px);  }
 }
 
-/* 時計回り弧矢印 (フェーズ3) */
+/* =====================================================
+   タップアイコン（フェーズ1: タオルをタップして折りたたむ）
+   ===================================================== */
+#tap-icon {
+    position: absolute;
+    left: 283px;   /* towel-phase1 の中央 x: 178 + 210/2 */
+    top:  291px;   /* towel-phase1 の中央 y: 203 + 176/2 */
+    width:  54px;
+    height: 54px;
+    border: 3px solid gold;
+    border-radius: 50%;
+    box-shadow: 0 0 12px 4px rgba(255, 215, 0, 0.7);
+    z-index: 16;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    animation: tapIconPulse 0.9s ease-in-out infinite alternate;
+}
+
+#tap-icon::after {
+    content: 'TAP';
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: gold;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
+    white-space: nowrap;
+}
+
+@keyframes tapIconPulse {
+    0%   { transform: translate(-50%, -50%) scale(0.85); opacity: 0.75; }
+    100% { transform: translate(-50%, -50%) scale(1.15); opacity: 1;    }
+}
+
+/* 時計回り弧矢印 (フェーズ4: 赤ちゃんの頭の右上に配置) */
 #arrow-rotate {
     position: absolute;
-    left: 70px;   /* 75 × 0.933 */
-    top:  58px;   /* 85 × 0.684 */
+    left: 125px;
+    top:   30px;
     width: 110px;
     height: 110px;
     z-index: 15;
