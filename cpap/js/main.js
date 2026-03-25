@@ -3,38 +3,115 @@ document.addEventListener('DOMContentLoaded', () => {
     ScaleManager.init();
 
     const elements = {
-        cpapGaugeFill: document.getElementById('cpap-gauge-fill'),
-        cpapBagOverlay: document.getElementById('cpap-bag-overlay'),
-        spo2Number: document.getElementById('spo2-number'),
-        prNumber: document.getElementById('pr-number'),
-        clearScreen: document.getElementById('clear-screen'),
-        restartBtn: document.getElementById('restart-btn'),
-        minigameContainer: document.getElementById('minigame-container')
+        cpapGaugeFill:    document.getElementById('cpap-gauge-fill'),
+        cpapBagOverlay:   document.getElementById('cpap-bag-overlay'),
+        spo2Number:       document.getElementById('spo2-number'),
+        prNumber:         document.getElementById('pr-number'),
+        clearScreen:      document.getElementById('clear-screen'),
+        restartBtn:       document.getElementById('restart-btn'),
+        minigameContainer: document.getElementById('minigame-container'),
+        touchHint:        document.getElementById('touch-hint'),
+        gaugeHint:        document.getElementById('gauge-hint'),
+        dialogBox:        document.getElementById('dialog-box'),
+        dialogName:       document.getElementById('dialog-name'),
+        dialogText:       document.getElementById('dialog-text'),
+        activeCharacter:  document.getElementById('active-character'),
     };
 
     let gameState = {
         cpapPressure: 0,
-        spo2Value: 90,
-        cpapActive: false
+        spo2Value:    90,
+        cpapActive:   false
     };
 
-    let cpapInterval = null;
-    let cpapPressing = false;
-    let spo2Timer = 0;
+    let cpapInterval   = null;
+    let cpapPressing   = false;
+    let spo2Timer      = 0;
+    let spo2DownTimer  = 0;
+    let firstTouchDone = false;
 
+    const sfxText        = new Audio('../shared/assets/text.mp3');
+    const sfxMonitor     = new Audio('assets/monitor.mp3');
+    const sfxMonitorDown = new Audio('assets/monitor_down.mp3');
+    const sfxBag         = new Audio('assets/bag.mp3');
+
+    // ===== ダイアログ =====
+    let _dialogClickHandler = null;
+    let _dialogShownAt      = 0;
+
+    function showDialog(text, name, callback) {
+        if (_dialogClickHandler) {
+            document.removeEventListener('click', _dialogClickHandler);
+            _dialogClickHandler = null;
+        }
+
+        elements.dialogName.textContent = name || '';
+        elements.dialogText.textContent = text;
+
+        if (name) {
+            elements.activeCharacter.classList.remove('hidden');
+            elements.dialogBox.classList.remove('narration');
+        } else {
+            elements.activeCharacter.classList.add('hidden');
+            elements.dialogBox.classList.add('narration');
+        }
+
+        sfxText.currentTime = 0;
+        sfxText.play();
+        elements.dialogBox.classList.remove('hidden');
+        _dialogShownAt = Date.now();
+
+        _dialogClickHandler = () => {
+            if (Date.now() - _dialogShownAt < 150) return;
+            document.removeEventListener('click', _dialogClickHandler);
+            _dialogClickHandler = null;
+            elements.dialogBox.classList.add('hidden');
+            if (callback) callback();
+        };
+        document.addEventListener('click', _dialogClickHandler);
+    }
+
+    // ===== ゲーム初期化 =====
     function initGame() {
         elements.clearScreen.classList.add('hidden');
-        elements.minigameContainer.classList.remove('hidden');
+        elements.minigameContainer.classList.add('hidden');
+        elements.touchHint.classList.add('hidden');
+        elements.gaugeHint.classList.add('hidden');
 
         gameState.cpapPressure = 0;
-        gameState.spo2Value = 90;
-        gameState.cpapActive = true;
+        gameState.spo2Value    = 90;
+        gameState.cpapActive   = false;
+        spo2Timer      = 0;
+        spo2DownTimer  = 0;
+        firstTouchDone = false;
 
         elements.spo2Number.innerText = gameState.spo2Value;
-        elements.prNumber.innerText = Math.floor(Math.random() * 11) + 145;
-        elements.cpapGaugeFill.style.height = '0%';
+        elements.prNumber.innerText   = Math.floor(Math.random() * 11) + 145;
+        elements.cpapGaugeFill.style.height          = '0%';
         elements.cpapGaugeFill.style.backgroundColor = 'yellow';
-        elements.cpapBagOverlay.style.transform = '';
+        elements.cpapBagOverlay.style.transform      = '';
+        elements.activeCharacter.classList.remove('hidden');
+
+        // イントロダイアログ
+        showDialog("まずはCPAPで肺をしっかり広げておこう", "糸島", () => {
+            showDialog("CPAP（Continuous Positive Airway Pressure：持続陽圧呼吸療法）を行いましょう　バッグを押して、一定の圧をかけ続けてください", null, () => {
+                startCpapGame();
+            });
+        });
+    }
+
+    function startCpapGame() {
+        elements.activeCharacter.classList.remove('hidden');
+        elements.minigameContainer.classList.remove('hidden');
+        gameState.cpapActive = true;
+        firstTouchDone = false;
+
+        // バッグを2回金色に光らせて操作を促す
+        elements.cpapBagOverlay.classList.add('bag-hint');
+        setTimeout(() => elements.cpapBagOverlay.classList.remove('bag-hint'), 2000);
+
+        elements.touchHint.classList.remove('hidden');
+        elements.gaugeHint.classList.add('hidden');
 
         startCpapLoop();
     }
@@ -43,16 +120,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const handlePressStart = (e) => {
             if (e.cancelable) e.preventDefault();
             cpapPressing = true;
+            sfxBag.currentTime = 0;
+            sfxBag.play();
+            // 初回タッチ時: ヒントを切り替えてダイアログ表示（ゲームは継続）
+            if (!firstTouchDone) {
+                firstTouchDone = true;
+                elements.touchHint.classList.add('hidden');
+                elements.gaugeHint.classList.remove('hidden');
+                showDialog("酸素飽和度が95％になったら挿管するか", "糸島", null);
+            }
         };
         const handlePressEnd = () => {
             cpapPressing = false;
         };
 
-        elements.cpapBagOverlay.onmousedown = handlePressStart;
-        elements.cpapBagOverlay.onmouseup = handlePressEnd;
+        elements.cpapBagOverlay.onmousedown  = handlePressStart;
+        elements.cpapBagOverlay.onmouseup    = handlePressEnd;
         elements.cpapBagOverlay.onmouseleave = handlePressEnd;
         elements.cpapBagOverlay.ontouchstart = handlePressStart;
-        elements.cpapBagOverlay.ontouchend = handlePressEnd;
+        elements.cpapBagOverlay.ontouchend   = handlePressEnd;
 
         if (cpapInterval) clearInterval(cpapInterval);
 
@@ -77,14 +163,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const fillHeight = (gameState.cpapPressure / 10) * 100;
             elements.cpapGaugeFill.style.height = `${fillHeight}%`;
 
-            // バッグオーバーレイの squeeze 変形（横に広がり縦に潰れる）
-            const p = gameState.cpapPressure / 10;
+            // バッグオーバーレイの squeeze 変形
+            const p   = gameState.cpapPressure / 10;
             const bsx = 1.0 + p * 0.18;
             const bsy = 1.0 - p * 0.15;
             elements.cpapBagOverlay.style.transform = `scaleX(${bsx.toFixed(3)}) scaleY(${bsy.toFixed(3)})`;
 
             if (gameState.cpapPressure >= 3 && gameState.cpapPressure <= 8) {
-                elements.cpapGaugeFill.style.backgroundColor = '#0f0'; // 緑色
+                elements.cpapGaugeFill.style.backgroundColor = '#0f0';
+                spo2DownTimer = 0;
                 spo2Timer++;
 
                 if (spo2Timer > 30) {
@@ -92,14 +179,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (gameState.spo2Value < 95) {
                         gameState.spo2Value++;
                         elements.spo2Number.innerText = gameState.spo2Value;
+                        sfxMonitor.currentTime = 0;
+                        sfxMonitor.play();
+                        if (gameState.spo2Value >= 91) {
+                            elements.gaugeHint.classList.add('hidden');
+                        }
                         if (gameState.spo2Value >= 95) {
                             completeCpap();
                         }
                     }
                 }
             } else {
-                elements.cpapGaugeFill.style.backgroundColor = 'yellow'; // 警告色
+                elements.cpapGaugeFill.style.backgroundColor = 'yellow';
                 spo2Timer = 0;
+                spo2DownTimer++;
+
+                if (spo2DownTimer > 60) {
+                    spo2DownTimer = 0;
+                    if (gameState.spo2Value > 89) {
+                        gameState.spo2Value--;
+                        elements.spo2Number.innerText = gameState.spo2Value;
+                        sfxMonitorDown.currentTime = 0;
+                        sfxMonitorDown.play();
+                    }
+                }
             }
         }, 33);
     }
@@ -109,26 +212,23 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(cpapInterval);
         cpapInterval = null;
 
-        elements.cpapBagOverlay.onmousedown = null;
-        elements.cpapBagOverlay.onmouseup = null;
+        elements.cpapBagOverlay.onmousedown  = null;
+        elements.cpapBagOverlay.onmouseup    = null;
         elements.cpapBagOverlay.onmouseleave = null;
         elements.cpapBagOverlay.ontouchstart = null;
-        elements.cpapBagOverlay.ontouchend = null;
+        elements.cpapBagOverlay.ontouchend   = null;
 
         elements.cpapBagOverlay.style.transform = '';
+        elements.touchHint.classList.add('hidden');
+        elements.gaugeHint.classList.add('hidden');
+        elements.activeCharacter.classList.remove('hidden');
 
-        elements.minigameContainer.classList.add('hidden');
-        elements.clearScreen.classList.remove('hidden');
-
-        setTimeout(() => {
-            window.location.href = '../kotei/index.html';
-        }, 2000);
-    }
-
-    const dialogBox = document.getElementById('dialog-box');
-    if (dialogBox) {
-        dialogBox.addEventListener('click', () => {
-            dialogBox.classList.add('hidden');
+        showDialog("OK、じゃあ挿管するよ。八田さん体位を整えて", "糸島", () => {
+            elements.minigameContainer.classList.add('hidden');
+            elements.clearScreen.classList.remove('hidden');
+            setTimeout(() => {
+                window.location.href = '../kotei/index.html';
+            }, 500);
         });
     }
 

@@ -5,7 +5,8 @@
       "Bash(sips -g pixelWidth -g pixelHeight /Users/miyo/Desktop/退院支援編ミニゲーム/soukan/tenkai/assets/img/tube_insert.png)",
       "Bash(grep -n \"drag-tube\\\\|tube_insert\\\\|tube-insert\" /Users/miyo/Desktop/退院支援編ミニゲーム/soukan/tenkai/index.html /Users/miyo/Desktop/退院支援編ミニゲーム/soukan/tenkai/assets/css/*.css)",
       "Bash(sips --resampleHeightWidth 440 120 /Users/miyo/Desktop/退院支援編ミニゲーム/soukan/tenkai/assets/img/tube_insert.png)",
-      "Bash(find /Users/miyo/Desktop/退院支援編ミニゲーム/soukan -not -path */.git/* -not -path */.DS_Store -not -path */.claude/*)"
+      "Bash(find /Users/miyo/Desktop/退院支援編ミニゲーム/soukan -not -path */.git/* -not -path */.DS_Store -not -path */.claude/*)",
+      "mcp__Claude_Preview__preview_start"
     ]
   }
 }

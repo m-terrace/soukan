@@ -57,16 +57,20 @@
         <!-- UIレイヤー: 台詞、クリア画面 -->
         <div id="ui-layer">
             <!-- ノベルゲーム風 台詞領域 (画面下部固定) -->
-            <div id="dialog-box">
-                <div id="dialog-name">糸島</div>
-                <p id="dialog-text">まずCPAPで呼吸を安定させよう</p>
+            <div id="dialog-box" class="hidden">
+                <div id="dialog-name"></div>
+                <p id="dialog-text"></p>
             </div>
 
             <!-- クリア画面 -->
-            <div id="clear-screen" class="hidden">
-                <h1>CPAP完了！</h1>
-            </div>
+            <div id="clear-screen" class="hidden"></div>
         </div>
+
+        <!-- タッチヒント（バッグ付近） -->
+        <div id="touch-hint" class="hidden">タッチしよう！</div>
+
+        <!-- ゲージヒント（初回タッチ後表示） -->
+        <div id="gauge-hint" class="hidden">緑のゲージ内に圧をキープしよう</div>
     </div>
 
     <!-- スクリプト -->

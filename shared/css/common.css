@@ -22,6 +22,12 @@ body {
     height: 720px;
     overflow: hidden;
     background: #fdf5e6;
+    animation: gameContainerFadeIn 0.5s ease-out;
+}
+
+@keyframes gameContainerFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
 .hidden {
@@ -159,16 +165,30 @@ body {
     letter-spacing: 2px;
 }
 
-/* --- クリア画面 --- */
+/* --- ナレーション（立ち絵なし）時: 左余白をなくし中央揃え --- */
+#dialog-box.narration {
+    padding: 60px 120px;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+}
+
+/* --- クリア画面（ゲーム間シームレス遷移用の黒フェードアウト） --- */
 #clear-screen {
     position: absolute;
     inset: 0;
-    background: rgba(255, 255, 255, 0.9);
+    background: #000;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     z-index: 50;
+    animation: clearScreenFadeIn 0.4s ease-in forwards;
+}
+
+@keyframes clearScreenFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
 #clear-screen h1 {

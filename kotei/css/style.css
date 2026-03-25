@@ -11,7 +11,8 @@
 /* ミニゲームエリア配置（立ち絵の右側に寄せる） */
 #minigame-container {
     position: absolute;
-    top: 10px;                   /* 600px→420px 縮小に合わせて上に詰める */
+    top: 10px;
+    /* 600px→420px 縮小に合わせて上に詰める */
     left: calc(50% + 100px);
     transform: translateX(-50%);
     display: flex;
@@ -21,8 +22,10 @@
 
 /* --- 体位固定ミニゲーム --- */
 #head-fix-container {
-    width: 560px;   /* 600 × 0.933 */
-    height: 420px;  /* top:10 + 420 = 430px ＜ dialog開始(470px) */
+    width: 560px;
+    /* 600 × 0.933 */
+    height: 420px;
+    /* top:10 + 420 = 430px ＜ dialog開始(470px) */
     margin: 0 auto;
 }
 
@@ -53,34 +56,34 @@
 
 /* タオルエリア（基本: フェーズ0用） */
 #towel-area {
-    left:   190px;
-    top:    258px;
-    width:  210px;
-    height: 142px;
+    left: 180px;
+    top: 270px;
+    width: 160px;
+    height: 110px;
 }
 
 /* フェーズ1: タオルエリア（position2.jpg の平たいタオル形状） */
 #towel-area.towel-phase1 {
-    left:   178px;
-    top:    203px;
-    width:  210px;
-    height: 176px;
+    left: 170px;
+    top: 270px;
+    width: 200px;
+    height: 150px;
 }
 
 /* フェーズ2: 横長タオルエリア（position3.jpg の横長タオル・下寄せ） */
 #towel-area.towel-phase2 {
-    left:   142px;
-    top:    284px;
-    width:  280px;
-    height: 81px;
+    left: 70px;
+    top: 340px;
+    width: 320px;
+    height: 110px;
 }
 
-/* 顔エリア（同スケール） */
+/* 顔エリア（フェーズ4: 弧矢印付近） */
 #face-area {
-    left:  75px;
-    top:   68px;
-    width: 186px;
-    height: 150px;
+    left: 295px;
+    top:   15px;
+    width: 170px;
+    height: 170px;
 }
 
 /* =====================================================
@@ -93,8 +96,13 @@
 }
 
 @keyframes goldPulse {
-    0%   { box-shadow: 0 0 15px  5px gold; }
-    100% { box-shadow: 0 0 25px 10px gold; }
+    0% {
+        box-shadow: 0 0 15px 5px gold;
+    }
+
+    100% {
+        box-shadow: 0 0 25px 10px gold;
+    }
 }
 
 .yellow-highlight {
@@ -104,8 +112,13 @@
 }
 
 @keyframes yellowPulse {
-    0%   { box-shadow: 0 0 15px  5px #ffe000; }
-    100% { box-shadow: 0 0 25px 10px #ffff00; }
+    0% {
+        box-shadow: 0 0 15px 5px #ffe000;
+    }
+
+    100% {
+        box-shadow: 0 0 25px 10px #ffff00;
+    }
 }
 
 /* =====================================================
@@ -115,13 +128,15 @@
 /* ▼ 下向き矢印 (フェーズ0: タオルエリア直下) */
 #arrow-down {
     position: absolute;
-    left: 277px;   /* towel-area 中央: 190+210/2-18 ≈ 277 */
-    top:  405px;   /* towel-area 下端 258+142=400 + 5px gap */
+    left: 240px;
+    /* towel-area 中央: 190+210/2-18 ≈ 277 */
+    top: 370px;
+    /* towel-area 下端 258+142=400 + 5px gap */
     width: 0;
     height: 0;
-    border-left:  18px solid transparent;
+    border-left: 18px solid transparent;
     border-right: 18px solid transparent;
-    border-top:   32px solid gold;
+    border-top: 32px solid gold;
     animation: bounceDown 0.9s ease-in-out infinite alternate;
     z-index: 15;
     pointer-events: none;
@@ -129,16 +144,21 @@
 }
 
 @keyframes bounceDown {
-    0%   { transform: translateY(0);    }
-    100% { transform: translateY(14px); }
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(14px);
+    }
 }
 
 /* ↗ 右上45度矢印 (フェーズ2: タオルを頭の下へ) */
 #arrow-up {
     position: absolute;
     left: 232px;
-    top:  218px;
-    width:  65px;
+    top: 218px;
+    width: 65px;
     height: 65px;
     z-index: 15;
     pointer-events: none;
@@ -146,8 +166,13 @@
 }
 
 @keyframes bounceUpRight {
-    0%   { transform: translate(0,    0);    }
-    100% { transform: translate(8px, -8px);  }
+    0% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        transform: translate(8px, -8px);
+    }
 }
 
 /* =====================================================
@@ -155,9 +180,11 @@
    ===================================================== */
 #tap-icon {
     position: absolute;
-    left: 283px;   /* towel-phase1 の中央 x: 178 + 210/2 */
-    top:  291px;   /* towel-phase1 の中央 y: 203 + 176/2 */
-    width:  54px;
+    left: 270px;
+    /* towel-phase1 の中央 x: 178 + 210/2 */
+    top: 350px;
+    /* towel-phase1 の中央 y: 203 + 176/2 */
+    width: 54px;
     height: 54px;
     border: 3px solid gold;
     border-radius: 50%;
@@ -183,15 +210,22 @@
 }
 
 @keyframes tapIconPulse {
-    0%   { transform: translate(-50%, -50%) scale(0.85); opacity: 0.75; }
-    100% { transform: translate(-50%, -50%) scale(1.15); opacity: 1;    }
+    0% {
+        transform: translate(-50%, -50%) scale(0.85);
+        opacity: 0.75;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1.15);
+        opacity: 1;
+    }
 }
 
 /* 時計回り弧矢印 (フェーズ4: 赤ちゃんの頭の右上に配置) */
 #arrow-rotate {
     position: absolute;
-    left: 125px;
-    top:   30px;
+    left: 325px;
+    top: 30px;
     width: 110px;
     height: 110px;
     z-index: 15;
@@ -200,8 +234,15 @@
 }
 
 @keyframes rotatePulse {
-    0%   { opacity: 0.72; transform: scale(0.94); }
-    100% { opacity: 1.00; transform: scale(1.06); }
+    0% {
+        opacity: 0.72;
+        transform: scale(0.94);
+    }
+
+    100% {
+        opacity: 1.00;
+        transform: scale(1.06);
+    }
 }
 
 /* =====================================================

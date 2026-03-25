@@ -11,8 +11,9 @@
 
     const STORAGE_KEY = 'soukan_bgm_state';
     const bgm = new Audio(src);
-    bgm.loop   = true;
-    bgm.volume = 0.4;
+    bgm.loop    = true;
+    bgm.volume  = 0.4;
+    bgm.preload = 'auto'; // ページ遷移後も即座にキャッシュから再生できるよう積極的にプリロード
 
     // ページ離脱時に再生位置と時刻を保存
     function saveState() {

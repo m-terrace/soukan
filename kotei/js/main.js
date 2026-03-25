@@ -21,8 +21,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let gameState = { phase: 0 };
 
+    // ===== 効果音 =====
+    const sfxCutin = new Audio('../shared/assets/cutin.mp3');
+    function playCutin() { sfxCutin.currentTime = 0; sfxCutin.play(); }
+    const sfxText = new Audio('../shared/assets/text.mp3');
+    function playText() { sfxText.currentTime = 0; sfxText.play(); }
+    const sfxKotei = new Audio('assets/kotei.mp3');
+    function playKotei() {
+        sfxKotei.currentTime = 0;
+        sfxKotei.play();
+    }
+    const sfxKotei2 = new Audio('assets/kotei2.mp3');
+    function playKotei2() {
+        sfxKotei2.currentTime = 0;
+        sfxKotei2.play();
+    }
+
+    // ===== ボイス =====
+    const koteiVoices = [null, ...Array.from({ length: 7 }, (_, i) => new Audio(`assets/kotei_${i + 1}.mp3`))];
+    function playKoteiVoice(n) {
+        const a = koteiVoices[n];
+        if (a) { a.currentTime = 0; a.play().catch(() => {}); }
+    }
+
     // ===== カットイン =====
     function showCutin(imgName, durationMs, callback) {
+        playCutin();
         elements.cutinImage.style.backgroundImage = `url('assets/img/${imgName}')`;
         elements.cutinContainer.classList.add('active');
         elements.cutinContainer.classList.remove('hidden');
@@ -37,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== ダイアログ =====
     function setDialog(text, name) {
+        playText();
         elements.dialogText.textContent = text;
         elements.dialogName.textContent = name || '';
     }
@@ -140,16 +165,15 @@ document.addEventListener('DOMContentLoaded', () => {
         hideAllHints();
 
         setDialog("体位を整えます！", "八田");
+        playKoteiVoice(1);
 
         // ダイアログクリックでウィンドウ表示 → フェーズ0へ
-        const dialogBox = document.getElementById('dialog-box');
         const onIntroClick = () => {
-            dialogBox.removeEventListener('click', onIntroClick);
             elements.minigameContainer.classList.remove('hidden');
             elements.headFixBg.style.backgroundImage = "url('assets/img/position1.jpg')";
             showPhase0();
         };
-        dialogBox.addEventListener('click', onIntroClick);
+        document.addEventListener('click', onIntroClick, { once: true });
     }
 
     // =====================================================
@@ -157,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // =====================================================
     function showPhase0() {
         setDialog("肩枕を外して頭枕に変えないと", "八田");
+        playKoteiVoice(2);
 
         // タオルエリアを金色にハイライト
         elements.towelArea.classList.remove('hidden');
@@ -167,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // ドラッグ下方向 25px 以上でフェーズ1へ
         setupDragGesture(elements.towelArea, (dx, dy) => {
-            if (dy > 25) advanceToPhase1();
+            if (dy > 25) { playKotei(); advanceToPhase1(); }
         });
     }
 
@@ -183,9 +208,10 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.towelArea.classList.add('towel-phase1', 'yellow-highlight');
         elements.tapIcon.classList.remove('hidden');
         setDialog("タオルを平たく折りたたんで・・・", "八田");
+        playKoteiVoice(3);
 
         // タップでフェーズ2へ
-        setupTapGesture(elements.towelArea, advanceToPhase2);
+        setupTapGesture(elements.towelArea, () => { playKotei(); advanceToPhase2(); });
     }
 
     // =====================================================
@@ -202,10 +228,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // 右上45度矢印を表示
         elements.arrowUp.classList.remove('hidden');
         setDialog("頭の下にタオルを置こう", "八田");
+        playKoteiVoice(4);
 
         // 上方向ドラッグ（上: dy < -20）でフェーズ3へ
         setupDragGesture(elements.towelArea, (dx, dy) => {
-            if (dy < -20) advanceToPhase3();
+            if (dy < -20) { playKotei(); advanceToPhase3(); }
         });
     }
 
@@ -217,15 +244,14 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.phase = 3;
         hideAllHints();
         elements.headFixBg.style.backgroundImage = "url('assets/img/position4.jpg')";
-        setDialog("上手にタオルが置けました！頭を固定します", "八田");
+        setDialog("頭を固定します", "八田");
+        playKoteiVoice(5);
 
         // ダイアログクリックでフェーズ4へ
-        const dialogBox = document.getElementById('dialog-box');
         const onPhase3Click = () => {
-            dialogBox.removeEventListener('click', onPhase3Click);
             advanceToPhase4();
         };
-        dialogBox.addEventListener('click', onPhase3Click);
+        document.addEventListener('click', onPhase3Click, { once: true });
     }
 
     // =====================================================
@@ -240,10 +266,11 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.faceArea.classList.remove('hidden');
         elements.arrowRotate.classList.remove('hidden');
         setDialog("少し顎を挿管する人の方向に傾けて・・・", "八田");
+        playKoteiVoice(6);
 
-        // 時計回り弧ジェスチャー（dx > 20px）で完了
+        // 時計回り弧ジェスチャー（dx > 10px）で完了
         setupDragGesture(elements.faceArea, (dx, dy) => {
-            if (dx > 20) completeGame();
+            if (dx > 10) { playKotei2(); completeGame(); }
         });
     }
 
@@ -264,9 +291,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     setTimeout(() => {
                         window.location.href = '../tenkai/index.html';
-                    }, 2000);
+                    }, 500);
                 });
                 setDialog("OKです！", "八田");
+                playKoteiVoice(7);
             }, 700);
         };
 

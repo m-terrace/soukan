@@ -8,6 +8,11 @@
     background-image: url('../assets/img/back.jpg');
 }
 
+/* チューブが画面外にはみ出せるようoverflowをvisibleに（tenkai専用上書き） */
+#game-container {
+    overflow: visible;
+}
+
 /* ミニゲームエリア配置（立ち絵の右側に寄せる） */
 #minigame-container {
     position: absolute;
@@ -332,8 +337,8 @@
 /* ドラッグ可能なチューブ画像 */
 #drag-tube {
     position: absolute;
-    width: 343px;
-    height: 440px;
+    width: 686px;
+    height: 914px;
     cursor: grab;
     pointer-events: auto;
     user-select: none;
@@ -343,6 +348,16 @@
 
 #drag-tube:active {
     cursor: grabbing;
+}
+
+/* スライドイン後のゴールドグロー（2パルス = 1秒） */
+#drag-tube.tube-glow {
+    animation: tubeGoldGlow 0.5s ease-in-out 2 alternate;
+}
+
+@keyframes tubeGoldGlow {
+    0%   { filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.35)); }
+    100% { filter: drop-shadow(0 0 22px gold) brightness(1.18); }
 }
 
 /* 声帯開口部のターゲット表示リング */

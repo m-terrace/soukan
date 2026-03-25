@@ -6,180 +6,40 @@
     <title>新生児挿管シミュレーション</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
-            background: #0a0a0f;
+            background: #000;
             display: flex;
-            align-items: center;
             justify-content: center;
-            width: 100vw;
+            align-items: center;
             height: 100vh;
-            font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
-            overflow: hidden;
+            font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
         }
-
-        #title-screen {
-            position: relative;
-            width: 1280px;
-            height: 720px;
-            background: linear-gradient(160deg, #0d1b2a 0%, #1b2838 60%, #0a1020 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 48px;
-            overflow: hidden;
-        }
-
-        /* 背景グリッド装飾 */
-        #title-screen::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            background-image:
-                linear-gradient(rgba(80,160,255,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(80,160,255,0.04) 1px, transparent 1px);
-            background-size: 64px 64px;
-        }
-
-        .title-badge {
-            font-size: 13px;
-            letter-spacing: 4px;
-            color: rgba(100,180,255,0.7);
-            text-transform: uppercase;
-            border: 1px solid rgba(100,180,255,0.25);
-            padding: 6px 20px;
-            border-radius: 20px;
-        }
-
-        h1 {
-            font-size: 52px;
-            font-weight: 900;
-            color: #fff;
-            letter-spacing: 6px;
-            text-shadow: 0 0 40px rgba(80,160,255,0.4);
-            text-align: center;
-            line-height: 1.25;
-        }
-
-        h1 span {
-            display: block;
-            font-size: 22px;
-            font-weight: 400;
-            color: rgba(160,210,255,0.75);
-            letter-spacing: 8px;
-            margin-top: 10px;
-        }
-
-        .flow-bar {
-            display: flex;
-            align-items: center;
-            gap: 0;
-        }
-
-        .flow-step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .flow-step .num {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(80,160,255,0.2);
-            border: 1.5px solid rgba(80,160,255,0.5);
-            color: rgba(140,200,255,0.9);
-            font-size: 13px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .flow-step .label {
-            font-size: 14px;
-            color: rgba(200,230,255,0.75);
-            letter-spacing: 2px;
-            white-space: nowrap;
-        }
-
-        .flow-arrow {
-            width: 48px;
-            height: 2px;
-            background: linear-gradient(to right, rgba(80,160,255,0.4), rgba(80,160,255,0.2));
-            margin: 0 4px;
-            margin-bottom: 28px;
-            position: relative;
-        }
-
-        .flow-arrow::after {
-            content: '';
-            position: absolute;
-            right: -1px;
-            top: -4px;
-            border-top: 5px solid transparent;
-            border-bottom: 5px solid transparent;
-            border-left: 8px solid rgba(80,160,255,0.4);
-        }
-
         #start-btn {
-            margin-top: 8px;
-            padding: 18px 72px;
-            font-size: 22px;
+            padding: 28px 80px;
+            font-size: 32px;
             font-weight: bold;
-            letter-spacing: 6px;
             color: #fff;
-            background: linear-gradient(135deg, #1565c0, #0d47a1);
-            border: none;
-            border-radius: 50px;
+            background: transparent;
+            border: 3px solid #fff;
+            border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 4px 24px rgba(30,100,220,0.5), 0 0 0 1px rgba(80,160,255,0.2);
-            transition: transform 0.15s, box-shadow 0.15s;
+            letter-spacing: 4px;
+            transition: background 0.2s, color 0.2s;
         }
-
         #start-btn:hover {
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 8px 36px rgba(30,100,220,0.7), 0 0 0 1px rgba(80,160,255,0.4);
-        }
-
-        #start-btn:active {
-            transform: translateY(0) scale(0.99);
+            background: rgba(255,255,255,0.15);
         }
     </style>
 </head>
 <body>
-    <div id="title-screen">
-        <div class="title-badge">Neonatal Intubation Simulation</div>
+    <button id="start-btn">ゲームスタート</button>
 
-        <h1>
-            新生児挿管
-            <span>シミュレーション</span>
-        </h1>
-
-        <div class="flow-bar">
-            <div class="flow-step">
-                <div class="num">1</div>
-                <div class="label">CPAP</div>
-            </div>
-            <div class="flow-arrow"></div>
-            <div class="flow-step">
-                <div class="num">2</div>
-                <div class="label">体位固定</div>
-            </div>
-            <div class="flow-arrow"></div>
-            <div class="flow-step">
-                <div class="num">3</div>
-                <div class="label">喉頭展開・挿管</div>
-            </div>
-        </div>
-
-        <button id="start-btn" onclick="window.location.href='cpap/index.html'">
-            スタート
-        </button>
-    </div>
     <script src="shared/js/bgm.js" data-bgm="shared/assets/soukanbgm.mp3"></script>
+    <script>
+        document.getElementById('start-btn').addEventListener('click', function () {
+            // このクリックでブラウザの音声自動再生ブロックが解除される
+            window.location.replace('cpap/index.html');
+        });
+    </script>
 </body>
 </html>

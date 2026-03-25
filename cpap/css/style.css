@@ -50,6 +50,52 @@
     pointer-events: auto;
     user-select: none;
     -webkit-user-drag: none;
+    border-radius: 12px;
+}
+
+/* 開始時のバッグ金色ヒントアニメーション（4回 = 2パルス） */
+#cpap-bag-overlay.bag-hint {
+    animation: bagGoldPulse 0.5s ease-in-out 4 alternate;
+}
+
+@keyframes bagGoldPulse {
+    0%   { filter: drop-shadow(0 0  0px gold) brightness(1.0); }
+    100% { filter: drop-shadow(0 0 24px gold) brightness(1.25); }
+}
+
+/* タッチヒント */
+#touch-hint {
+    position: absolute;
+    left: 820px;
+    top:  115px;
+    color: gold;
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-shadow: 0 0 12px rgba(255, 215, 0, 0.9);
+    z-index: 201;
+    pointer-events: none;
+    animation: touchBlink 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes touchBlink {
+    0%   { opacity: 0.4; }
+    100% { opacity: 1.0; }
+}
+
+/* ゲージヒント（縦書き・ゲージ左横） */
+#gauge-hint {
+    position: absolute;
+    right: 70px;
+    top:  100px;
+    color: #4f4;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 4px;
+    text-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+    writing-mode: vertical-rl;
+    z-index: 201;
+    pointer-events: none;
 }
 
 #cpap-gauge {

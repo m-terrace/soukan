@@ -42,6 +42,35 @@ document.addEventListener('DOMContentLoaded', () => {
         tubeTargetY: 0,
     };
 
+    let closerHintShown  = false;
+    let deepHintShown    = false;
+    let _dialogShownAt   = 0; // 同一クリックで即閉じるのを防ぐタイムスタンプ
+
+    // ===== 効果音 =====
+    const sfxCutin = new Audio('../shared/assets/cutin.mp3');
+    function playCutin() { sfxCutin.currentTime = 0; sfxCutin.play(); }
+    const sfxText = new Audio('../shared/assets/text.mp3');
+    function playText() { sfxText.currentTime = 0; sfxText.play(); }
+    const sfxCursole = new Audio('assets/img/cursole.mp3');
+    function playCursole() { sfxCursole.currentTime = 0; sfxCursole.play(); }
+    const sfxChoice = new Audio('assets/img/choice.mp3');
+    function playChoice() { sfxChoice.currentTime = 0; sfxChoice.play(); }
+    const sfxMiss = new Audio('assets/img/miss.mp3');
+    function playMiss() { sfxMiss.currentTime = 0; sfxMiss.play(); }
+    const sfxSuction = new Audio('assets/img/suction.mp3');
+    function playSuction() { sfxSuction.currentTime = 0; sfxSuction.play(); }
+
+    // ===== ボイス =====
+    // tenkai_2・tenkai_3 はナビ操作ヒントのためボイスなし
+    const tenkaiVoices = {};
+    [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].forEach(i => {
+        tenkaiVoices[i] = new Audio(`assets/tenkai_${i}.mp3`);
+    });
+    function playTenkaiVoice(n) {
+        const a = tenkaiVoices[n];
+        if (a) { a.currentTime = 0; a.play().catch(() => {}); }
+    }
+
     // -- キャラクター表示 --
     const characterNames = { 'takei': '武居', 'itoshima': '糸島' };
 
@@ -49,13 +78,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!name) {
             elements.activeCharacter.classList.add('hidden');
             elements.dialogName.textContent = '';
+            elements.dialogBox.classList.add('narration');
             return;
         }
         elements.activeCharacter.className = `standing-character char-${name}`;
         elements.dialogName.textContent = characterNames[name] || '';
+        elements.dialogBox.classList.remove('narration');
     }
 
     function showCutin(imgName, durationMs, callback) {
+        playCutin();
         elements.cutinImage.style.backgroundImage = `url('assets/img/${imgName}')`;
         elements.cutinContainer.classList.add('active');
         elements.cutinContainer.classList.remove('hidden');
@@ -70,14 +102,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showCutinPersistent(imgName) {
+        playCutin();
         elements.cutinImage.style.backgroundImage = `url('assets/img/${imgName}')`;
         elements.cutinContainer.classList.remove('hidden');
         elements.cutinContainer.classList.add('active');
     }
 
     // -- ダイアログ管理 --
-    function queueDialog(text, cutinImg = null, requireClick = true, callback = null) {
-        gameState.dialogQueue.push({ text, cutinImg, requireClick, callback });
+    function queueDialog(text, cutinImg = null, requireClick = true, callback = null, voiceKey = null) {
+        gameState.dialogQueue.push({ text, cutinImg, requireClick, callback, voiceKey });
         if (!gameState.dialogActive) {
             playNextDialog();
         }
@@ -89,13 +122,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        _dialogShownAt = Date.now();
         gameState.dialogActive = true;
         const currentDialog = gameState.dialogQueue.shift();
 
         elements.dialogBox.classList.remove('hidden');
+        playText();
         elements.dialogText.textContent = currentDialog.text;
+        if (currentDialog.voiceKey != null) playTenkaiVoice(currentDialog.voiceKey);
 
         if (currentDialog.cutinImg) {
+            playCutin();
             elements.cutinImage.style.backgroundImage = `url('assets/img/${currentDialog.cutinImg}')`;
             elements.cutinContainer.classList.add('active');
             elements.cutinContainer.classList.remove('hidden');
@@ -121,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function advanceDialog() {
         if (!gameState.dialogActive) return;
+        if (Date.now() - _dialogShownAt < 150) return;
         gameState.dialogActive = false;
 
         if (gameState.currentDialogCallback) {
@@ -174,14 +212,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleSelection(e) {
         if (!gameState.awaitingSelection) return;
 
-        const selectedTool = e.target.dataset.tool;
+        // e.target が子要素の場合もあるため closest で確実にボタンを取得
+        const btn = e.target.closest('[data-tool]');
+        if (!btn) return;
+        const selectedTool = btn.dataset.tool;
+
         if (selectedTool === gameState.awaitingSelection) {
-            e.target.classList.add('correct');
+            playChoice();
+            btn.classList.add('correct');
 
             setTimeout(() => {
                 elements.toolSelection.classList.add('hidden');
                 elements.toolSelection.style.display = '';
-                e.target.classList.remove('correct');
+                btn.classList.remove('correct');
 
                 let selectedId = gameState.awaitingSelection;
                 gameState.awaitingSelection = null;
@@ -196,8 +239,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, 300);
         } else {
-            e.target.classList.add('wrong-choice');
-            setTimeout(() => e.target.classList.remove('wrong-choice'), 400);
+            playMiss();
+            btn.classList.add('wrong-choice');
+            setTimeout(() => btn.classList.remove('wrong-choice'), 400);
+        }
+    }
+
+    // -- 左ウィンドウ同期 --
+    // 0=start.jpg表示中, 1=start2.jpg表示中, 2=nav連動中
+    let window1Phase = 0;
+
+    function syncWindow1ToNav() {
+        const { depth, vertical, horizontal } = gameState.scopeNav;
+        let img;
+        if (depth === 'closer') {
+            if (vertical === 'upper')                          img = 'temae_high.jpg';
+            else if (vertical === 'lower')                     img = 'temae_low.jpg';
+            else if (horizontal === 'left' || horizontal === 'right') img = 'temae_middle.jpg';
+            else                                               img = 'temae_middle.jpg'; // middle/middle
+        } else {
+            if (vertical === 'upper')                          img = 'oku_high.jpg';
+            else if (vertical === 'lower')                     img = 'oku_low.jpg';
+            else if (horizontal === 'left' || horizontal === 'right') img = 'oku_middle.jpg';
+            else                                               img = 'oku_middle.jpg'; // middle/middle
+        }
+        elements.window1Bg.src = `assets/img/${img}`;
+    }
+
+    function onWindow1Action() {
+        if (window1Phase === 0) {
+            window1Phase = 1;
+            elements.window1Bg.src = 'assets/img/start2.jpg';
+        } else {
+            window1Phase = 2;
+            syncWindow1ToNav();
         }
     }
 
@@ -240,6 +315,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const nav = gameState.scopeNav;
         if (nav.depth === 'closer') {
             nav.depth = 'deep';
+            if (!deepHintShown) {
+                deepHintShown = true;
+                queueDialog("もう少し上か", null, true, null);
+            }
         } else {
             nav.depth = 'closer';
         }
@@ -247,6 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
         nav.horizontal = 'middle';
         updateScopeImage();
         updateDepthBtn();
+        onWindow1Action();
         checkDeepUpperTrigger();
     }
 
@@ -267,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 break;
             case 'ArrowDown':
-                if (nav.depth === 'deep' && nav.vertical !== 'lower') {
+                if (nav.vertical !== 'lower') {
                     nav.vertical = 'lower';
                     nav.horizontal = 'middle';
                 }
@@ -283,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         updateScopeImage();
+        onWindow1Action();
         checkDeepUpperTrigger();
     }
 
@@ -306,7 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         queueDialog("じゃあ喉頭展開するよ", null, true, () => {
             startWindowAnimation();
-        });
+        }, 1);
     }
 
     // ウィンドウ出現 → 画像アニメーション → ナビ有効化
@@ -320,15 +401,16 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.scopeContent.style.transform = '';
 
         // 初期画像
-        elements.window1Bg.src = 'assets/img/soukan1.jpeg';
+        elements.window1Bg.src = 'assets/img/start.jpg';
         setScopeImageDirect('assets/img/oral cavity/face1.png');
 
-        // 1秒後: 左→soukan2.jpeg、右→face2.jpg
+        // 1秒後: 左→start2.jpg / 右→face2.jpg
         setTimeout(() => {
-            elements.window1Bg.src = 'assets/img/soukan2.jpeg';
+            elements.window1Bg.src = 'assets/img/start2.jpg';
+            window1Phase = 1;
             setScopeImageDirect('assets/img/oral cavity/face2.jpg');
 
-            // 0.5秒後: 右→closer_middle.jpg → ナビ開始
+            // 0.5秒後: 左・右ともにcloser_middle → ナビ開始
             setTimeout(() => {
                 setScopeImageDirect('assets/img/oral cavity/closer_middle.jpg');
                 enableNavigation();
@@ -343,16 +425,24 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.navDisabled = false;
         elements.navControls.classList.remove('hidden');
         updateDepthBtn();
+        // 左ウィンドウをnav連動フェーズに移行（初期: closer_middle.jpg）
+        window1Phase = 2;
+        syncWindow1ToNav();
+
+        if (!closerHintShown) {
+            closerHintShown = true;
+            queueDialog("もうちょっと奥かな", null, true, null);
+        }
     }
 
     function onDeepUpperReached() {
         // deep_upper2.jpg はすでに表示中
-        queueDialog("分泌物が多いな。吸引するか。", null, true, () => {
+        queueDialog("分泌物が多いな。吸引しよう。", null, true, () => {
             showCharacter('takei');
             queueDialog("吸引か、どれだったかな", null, false, () => {
                 showToolSelection('suction');
-            });
-        });
+            }, 5);
+        }, 4);
     }
 
     function proceedAfterSuction() {
@@ -362,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
         queueDialog("吸引チューブです", null, true, () => {
             showCharacter('itoshima');
             queueDialog("吸引して・・・と", null, true, () => {
+                playSuction();
                 // 画像を deep_upper.jpg に切り替え
                 setScopeImageDirect('assets/img/oral cavity/deep_upper.jpg');
 
@@ -370,20 +461,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 queueDialog("見えた！", null, true, () => {
                     hideCutin();
                     proceedToStep5();
-                });
-            });
-        });
+                }, 8);
+            }, 7);
+        }, 6);
     }
 
     function proceedToStep5() {
         gameState.step = 5;
         showCharacter('itoshima');
-        queueDialog("武井さんチューブを！", null, true, () => {
+        queueDialog("武居さんチューブを！", null, true, () => {
             showCharacter('takei');
             queueDialog("えーと、どれだっけ", null, false, () => {
                 showToolSelection('tracheal');
-            });
-        });
+            }, 10);
+        }, 9);
     }
 
     function proceedToStep6() {
@@ -393,7 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
         queueDialog("これだ！", null, true, () => {
             hideCutin();
             startTubeGame();
-        });
+        }, 11);
     }
 
     // =====================================================
@@ -401,8 +492,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // =====================================================
 
     // チューブ画像の定数（CSSサイズに合わせる）
-    const TUBE_W = 343;
-    const TUBE_H = 440;
+    const TUBE_W = 686;
+    const TUBE_H = 914; // tube.png 2倍サイズ
 
     /** ゲーム開始: チューブを表示して声帯ターゲットを配置 */
     function startTubeGame() {
@@ -417,19 +508,31 @@ document.addEventListener('DOMContentLoaded', () => {
         tube.style.opacity = '1';
         tube.style.pointerEvents = 'auto';
         tube.style.cursor = 'grab';
+        tube.classList.remove('tube-glow');
 
-        // チューブの初期位置（左ウィンドウ中央付近）
-        tube.style.left = '340px';
-        tube.style.top = '80px';
+        // 画面右外からスライドイン（縦: 中央 top=(720-914)/2=-97px、横: 右1/5=1024px で停止）
+        tube.style.left = '1500px';
+        tube.style.top  = '-97px';
 
         elements.tubeInsertionGame.classList.remove('hidden');
-
-        // ターゲットリングの位置を声帯開口部に合わせる
         positionTubeTarget();
 
-        queueDialog("声帯が見えます。チューブを声帯の開口部に合わせてください", null, true, () => {
+        // 2フレーム後にスライドイン開始（描画確定後）
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            tube.style.transition = 'left 0.6s ease-out';
+            tube.style.left = '1024px'; // 右1/5の位置（1280 × 4/5）
+
+            // スライド完了後にゴールドグロー（1秒）
+            setTimeout(() => {
+                tube.style.transition = ''; // ドラッグに支障がないようリセット
+                tube.classList.add('tube-glow');
+                setTimeout(() => tube.classList.remove('tube-glow'), 1000);
+            }, 600);
+        }));
+
+        queueDialog("チューブの先端を声帯の開口部に合わせてください", null, true, () => {
             enableTubeDrag();
-        });
+        }, 12);
     }
 
     /** ターゲットリングを scope-lens の声帯開口部（上40%付近）に配置 */
@@ -496,15 +599,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /** チューブ先端（bottom-center）がターゲットに重なるか確認 */
+    /** チューブ先端がターゲットに重なるか確認 */
     function checkTubeHit(tubeLeft, tubeTop) {
-        const tipX = tubeLeft + TUBE_W / 2;
-        const tipY = tubeTop  + TUBE_H * 0.96;   // 先端は高さの96%付近
+        // 画像を縦3・横2分割した「左列・下行」セルの中心をヒット点とする
+        const tipX = tubeLeft + TUBE_W / 4;           // 左列中心（左から25%）
+        const tipY = tubeTop  + TUBE_H * 5 / 6;      // 下行中心（上から83%）
 
         const dx   = tipX - gameState.tubeTargetX;
         const dy   = tipY - gameState.tubeTargetY;
 
-        if (Math.sqrt(dx * dx + dy * dy) < 55) {
+        if (Math.sqrt(dx * dx + dy * dy) < 100) {
             onTubeInserted();
         }
     }
@@ -522,9 +626,9 @@ document.addEventListener('DOMContentLoaded', () => {
         tube.style.cursor       = 'default';
         tube.style.pointerEvents = 'none';
 
-        // 先端をターゲット中心にスナップ
-        const snapLeft = gameState.tubeTargetX - TUBE_W / 2;
-        const snapTop  = gameState.tubeTargetY - TUBE_H * 0.96;
+        // 先端をターゲット中心にスナップ（左下セル基準）
+        const snapLeft = gameState.tubeTargetX - TUBE_W / 4;
+        const snapTop  = gameState.tubeTargetY - TUBE_H * 5 / 6;
         tube.style.transition = 'left 0.15s ease, top 0.15s ease';
         tube.style.left = snapLeft + 'px';
         tube.style.top  = snapTop  + 'px';
@@ -557,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showCharacter('itoshima');
 
         showCutin("itoshima2.png", 1000, () => {
-            queueDialog("OK、入った！", null, true, proceedToStep7);
+            queueDialog("OK、入った！", null, true, proceedToStep7, 13);
         });
     }
 
@@ -567,8 +671,8 @@ document.addEventListener('DOMContentLoaded', () => {
             showCharacter('takei');
             queueDialog("えーと、どれだっけ", null, false, () => {
                 showToolSelection('bag');
-            });
-        });
+            }, 15);
+        }, 14);
     }
 
     function proceedToStep8() {
@@ -576,10 +680,6 @@ document.addEventListener('DOMContentLoaded', () => {
         hideDialog();
         showCharacter(null);
         elements.clearScreen.classList.remove('hidden');
-
-        setTimeout(() => {
-            window.location.href = '../cpap/index.html';
-        }, 2000);
     }
 
     function initGame() {
@@ -595,6 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.tubeTargetY  = 0;
 
         elements.tubeInsertionGame.classList.add('hidden');
+        window1Phase = 0;
 
         elements.bgImage.style.backgroundImage = "url('assets/img/back.jpg')";
 
@@ -607,7 +708,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // -- イベントリスナー --
-    elements.dialogBox.addEventListener('click', advanceDialog);
+    document.addEventListener('click', advanceDialog);
 
     elements.toolBtns.forEach(btn => {
         btn.addEventListener('click', handleSelection);
@@ -632,12 +733,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 right: 'ArrowRight'
             };
             const key = dirMap[btn.dataset.dir];
-            if (key) handleScopeKey(key);
+            if (key) {
+                playCursole();
+                handleScopeKey(key);
+            }
         });
     });
 
     // 中央の奥へ/手前へボタン
-    elements.depthBtn.addEventListener('click', handleDepthBtn);
+    elements.depthBtn.addEventListener('click', () => {
+        playCursole();
+        handleDepthBtn();
+    });
 
 
     // ゲーム開始
